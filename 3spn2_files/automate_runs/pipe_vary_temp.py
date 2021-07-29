@@ -6,39 +6,6 @@ import os
 import numpy as np
 import shutil, glob
 
-## write the following as = True or False
-## if traj already computed fill False
-
-temp_list = [326]
-step_num = 100000
-reps = 1
-compute_traj = True
-fix_random = False
-rand_seed = 12345
-export_pngs = True
-box = '36'
-prefix = 'vary_box_' + box + '-'
-main_file = "main_no-v_200-traj-unwrap.in"
-conf_lammps_file = 'conf_lammps-' + box + '.in'
-run_reps = 1
-#conf_lammps_file = 'conf_lammps.in'
-
-png_dir_name = "png_export" + '-' + prefix
-
-## locations by line number in main run script:
-
-temp_line = 7
-rand_var_line = 11
-conf_file_line = 27
-run_line = 78
-
-## should not need to edit below this line
-
-## will substitute following variables if exactly 8 args are given
-
-print(len(sys.argv))
-print(sys.argv)
-
 if len(sys.argv) == 8:
     temp_list = [int([sys.argv[1]][0])]
     step_num = int(sys.argv[2])
@@ -47,10 +14,6 @@ if len(sys.argv) == 8:
     prefix = sys.argv[5]
     main_file = sys.argv[6]
     run_reps = sys.argv[7]
-    
-print (sys.argv)
-print (len(sys.argv))
-print (temp_list, step_num, reps)
 
 dir_list = []
 
@@ -62,8 +25,6 @@ for temp in temp_list:
         data[temp_line] = "variable T equal " + str(temp) + "\n"
         data[conf_file_line] = "read_data " + conf_lammps_file + "\n"
         
-        # data[run_line] = "run " + str(step_num) + "\n"
-        
         ## writes new run lines for a given number of run_reps
         for line_num in range(int(run_reps)):
             
@@ -72,7 +33,6 @@ for temp in temp_list:
                 
             else:
                 data.append("run " + str(step_num) + "\n")
-        
         
         if fix_random:
             data[rand_var_line] = "variable random equal " + str(rand_seed) + "\n"
@@ -152,7 +112,6 @@ for dir_name in dir_list:
     plot_basepairs()
     if export_pngs:
         export_pngs(reps)
-        
-# copy and remove batch files from main runfolder directory
+
 
 

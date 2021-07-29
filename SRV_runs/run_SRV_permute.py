@@ -81,9 +81,6 @@ for i in range(n_bp):
         # update cnt index for inter_p
         cnt+=1
 
-# add averaged intramolecular distances
-#data_p[cnt:] = (data[:, :, 100:145] + data[:, :, 145:]) / 2
-
 # sets output paths for pkl files
 pkl_path = './dataframe_outputs/' + prefix + npy_name.replace('.npy', '.pkl')
 pkl_hde_path = './hde_outputs/' + prefix + npy_name.replace('.npy', '.pkl')
@@ -98,18 +95,9 @@ print(np.shape(pwd_features_s))
 # delete tot save mem
 del data, data_p
 
-## comment out for skipping preferences, this gives 5000 data points by default
-#skip_p = int(len(pwd_features) * len(pwd_features[0]) / plot_num)
-
-from keras.callbacks import EarlyStopping
-earlyStopping = EarlyStopping(monitor='val_loss', patience=30, verbose=1, mode='min', restore_best_weights=False)
-
-## try manually splitting data
-#train_data, test_data = train_test_split(pwd_features_s, test_size=0.5)
-
 ## establish hyperparameters for srv training
 hde = HDE(n_feat, n_components=n_sm, lag_time=lag_time // skip_t, dropout_rate=0, batch_size=batch_size, n_epochs=n_epochs, 
-          validation_split=0.2, batch_normalization=True, learning_rate = l_rate, reversible=reversible, callbacks=[earlyStopping])
+          validation_split=0.2, batch_normalization=True, learning_rate = l_rate, reversible=reversible)
 
 ## format data for fitting
 hde.r_degree = 2
@@ -134,52 +122,3 @@ pickle.dump([history.history['loss'], history.history['val_loss']], open(pkl_his
 hde.callbacks = None
 hde.history = None
 pickle.dump(hde, open(pkl_hde_path, 'wb'), protocol=4)
-    
-'''
-for key in hde.__dict__:
-    with open(pkl_hde_path.replace('.pkl', key+'.pkl'), 'wb') as pickle_file:
-            
-        print(pkl_hde_path.replace('.pkl', key+'.pkl'), hde.__dict__[key])
-        pickle.dump(hde.__dict__[key], pickle_file)
-  
-  
-## find hde coords and timescales
-hde_coords = [hde.transform(item) for item in pwd_features]
-hde_timescales = hde.timescales_
-
-## calculate train and test scores for given # of slow modes
-train_score = hde.score(train_data)
-test_score = hde.score(test_data)
-
-num_bp = 10
-
-hde_coords_conc = np.concatenate(hde_coords)[::skip_p]
-pwd_features_conc = np.concatenate(pwd_features)[::skip_p]
-
-index_size = len(hde_coords_conc[:, 0])
-
-print (np.shape(hde_coords_conc))
-print (np.shape(pwd_features_conc))
-
-hde_col_list = ['1st_EF', '2nd_EF', '3rd_EF', '4th_EF', '5th_EF', '6th_EF', '7th_EF', '8th_EF']
-df = pd.DataFrame(data    = hde_coords_conc, 
-                  columns = hde_col_list[:n_sm],
-                  index   = np.linspace(1, index_size, index_size))
-
-# try passing in all pwd coords to pkl and make cvs post hoc
-for i in range(len(pwd_features_conc[0, :])):
-    df[str(i)] = pwd_features_conc[:, i]
-    
-## add hde_coords and filler zeros as last dataframe item   
-zero_fill = np.zeros(len(pwd_features_conc) - n_sm)
-df['hde_coords'] = np.append(hde_timescales, zero_fill)
-
-print(hde_timescales)
-print(train_score, test_score)
-
-zero_fill = np.zeros(len(pwd_features_conc) - 2)
-df['train_test'] = np.append(np.array([train_score, test_score]), zero_fill)
-
-# save dataframe outputs
-df.to_pickle(pkl_path)
-'''

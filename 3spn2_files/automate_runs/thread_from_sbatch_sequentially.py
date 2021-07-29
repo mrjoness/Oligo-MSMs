@@ -17,9 +17,6 @@ temp_index = sys.argv[9]
 run_reps = sys.argv[10]
 
 temp = start_temp
-
-#subprocess.call(["python", "pipe_vary_temp.py", temp, steps, reps, conf_lammps_file, prefix, main_file])
-
 counter = 0
 
 def get_temp():
@@ -35,11 +32,7 @@ def get_temp():
 def new_run(run_num, temp=temp, steps=steps, reps=reps, conf_lammps_file=conf_lammps_file, prefix=prefix, main_file=main_file, run_reps=run_reps):
     
     prefix += ("-" + str(run_num))
-    
     subprocess.call(["python", "pipe_vary_temp.py", temp, steps, reps, conf_lammps_file, prefix, main_file, run_reps])
-    
-    #subprocess.call(["python", "pipe_vary_temp_ewald.py", get_temp(), steps, reps, conf_lammps_file, prefix, main_file, run_reps])
-
 
 process_num_list = [i for i in range(process_num)]
 
@@ -50,5 +43,4 @@ if __name__ == '__main__':
 else:
     print ("not main")
 
-    
 # sample output: python pipe_vary_temp.py 300 20000 1 conf_AT-all.in repeat-test-login main_no-v_200-traj-unwrap.in 3

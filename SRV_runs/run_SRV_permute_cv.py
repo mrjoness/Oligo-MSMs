@@ -81,10 +81,6 @@ print(np.shape(pwd_features_s))
 # delete tot save mem
 del data, data_p
 
-from keras.callbacks import EarlyStopping
-earlyStopping = EarlyStopping(monitor='val_loss', patience=30, verbose=1, mode='min', restore_best_weights=False)
-
-
 for d_i in range(k_folds): #range(len(pwd_features_s)):
     
     data_train, data_test = train_test_split(pwd_features_s, test_size=val_split)
@@ -103,7 +99,7 @@ for d_i in range(k_folds): #range(len(pwd_features_s)):
     hde = HDE(n_feat, n_components=n_sm, lag_time=lag_time, dropout_rate=0, 
               batch_size=batch_size, n_epochs=n_epochs, validation_split=0, 
               batch_normalization=True, learning_rate = l_rate,
-              reversible=reversible) #callbacks=[earlyStopping])
+              reversible=reversible)
 
     ## format data for fitting
     hde.r_degree = 2
